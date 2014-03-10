@@ -43,12 +43,15 @@ public class FormExampleUI extends UI
     private HorizontalLayout plzOrt(String name) {
         HorizontalLayout plzOrt = new HorizontalLayout();
         plzOrt.setCaption(name);
-        TextField plz = textField(null, false, "plz");
-        plz.addValidator(testValidator(plzOrt));
+        TextField plz = textField("PLZ", false, "plz");
+        plz.setRequired(true);
         plz.setImmediate(true);
+        plz.addValidator(testValidator(plzOrt));
         plzOrt.addComponent(plz);
-        TextField ort = textField(null, false, "ort");
-        //ort.addValidator(testValidator(plzOrt));
+        TextField ort = textField("Ort", false, "ort");
+        ort.setRequired(true);
+        ort.setImmediate(true);
+        ort.addValidator(testValidator(plzOrt));
         plzOrt.addComponent(ort);
         return plzOrt;
     }

@@ -56,6 +56,9 @@
             display: none;
         }
 
+        .v-textfield-error {
+            border-color: red;
+        }
         .v-caption-error {
             color: red;
 
@@ -71,6 +74,11 @@
         .v-required-field-indicator {
             display: inline;
         }
+
+        .v-caption-plz, .v-caption-ort {
+            display: none;
+        }
+
     }
 
 }

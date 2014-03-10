@@ -7074,6 +7074,10 @@ body .mytheme.v-app .v-app-loading {
 	display: none;
 }
 
+.mytheme .formLine .v-textfield-error {
+	border-color: red;
+}
+
 .mytheme .formLine .v-caption-error {
 	color: red;
 }
@@ -7089,4 +7093,8 @@ body .mytheme.v-app .v-app-loading {
 
 .mytheme .formLine .v-required-field-indicator {
 	display: inline;
+}
+
+.mytheme .formLine .v-caption-plz, .mytheme .formLine .v-caption-ort {
+	display: none;
 }
