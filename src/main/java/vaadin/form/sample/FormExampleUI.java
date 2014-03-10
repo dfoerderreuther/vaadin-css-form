@@ -2,6 +2,7 @@ package vaadin.form.sample;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.Validator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
@@ -29,52 +30,85 @@ public class FormExampleUI extends UI
     }
 
     private void addCustomLayout(Layout layout) {
+        layout.addComponent(formLine(textField("Name", true)));
+        layout.addComponent(formLine(textField("Strasse", true)));
+        layout.addComponent(formLine(plzOrt("Postleitzahl / Ort")));
+        layout.addComponent(formLine(textField("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", true)));
+        layout.addComponent(formLine(textField("Land", true)));
+        layout.addComponent(formLine(textArea("Mehrzeilige Eingabe", true)));
+        layout.addComponent(formLine(textField("Kurz", true)));
+        layout.addComponent(formLine(rating()));
+    }
 
-        TextField name = new TextField("Name");
-        name.setRequired(true);
-        name.setImmediate(true);
-
-        layout.addComponent(formLine(name));
-        layout.addComponent(formLine(new TextField("Strasse")));
-
+    private HorizontalLayout plzOrt(String name) {
         HorizontalLayout plzOrt = new HorizontalLayout();
-        plzOrt.setCaption("Postleitzahl / Ort");
-        TextField plz = new TextField();
-        plz.addStyleName("plz");
-        TextField ort = new TextField();
-        ort.addStyleName("ort");
+        plzOrt.setCaption(name);
+        TextField plz = textField(null, false, "plz");
+        plz.addValidator(testValidator(plzOrt));
+        plz.setImmediate(true);
         plzOrt.addComponent(plz);
+        TextField ort = textField(null, false, "ort");
+        //ort.addValidator(testValidator(plzOrt));
         plzOrt.addComponent(ort);
+        return plzOrt;
+    }
 
-        layout.addComponent(formLine(plzOrt));
+    private TextField textField(String name, boolean required, String... styleNames) {
+        TextField textField = name != null ? new TextField(name) : new TextField();
+        extendAbstractTextField(textField, name, required, styleNames);
+        return textField;
+    }
 
-        TextField langesLabel = new TextField("Textfield mit langem Label. So lang, dass es sogar umbricht.");
-        layout.addComponent(formLine(langesLabel));
+    private TextArea textArea(String name, boolean required, String... styleNames) {
+        TextArea textField = name != null ? new TextArea(name) : new TextArea();
+        extendAbstractTextField(textField, name, required, styleNames);
+        return textField;
+    }
 
-        layout.addComponent(formLine(new TextField("Land")));
+    private void extendAbstractTextField(AbstractTextField textField, String name, boolean required, String... styleNames) {
+        if (required) {
+            textField.setRequired(true);
+            textField.setImmediate(true);
+            textField.addValidator(testValidator(textField));
+        }
+        for (String styleName : styleNames) {
+            textField.addStyleName(styleName);
+        }
+    }
 
-        layout.addComponent(formLine(new TextArea("Mehrzeilige Eingabe")));
-        layout.addComponent(formLine(new TextField("Kurz")));
-
-        HorizontalLayout bewertung = new HorizontalLayout();
-        bewertung.setStyleName("bewertung");
-        bewertung.addComponent(new Label("unwichtig"));
+    private HorizontalLayout rating() {
+        HorizontalLayout rating = new HorizontalLayout();
+        rating.setStyleName("bewertung");
+        rating.addComponent(new Label("unwichtig"));
         OptionGroup options = new OptionGroup();
         for (int i = 0; i < 5; i++) {
             options.addItem(i);
             options.setItemCaption(i, "");
         }
-        bewertung.addComponent(options);
-        bewertung.addComponent(new Label("wichtig"));
-
-        layout.addComponent(formLine(bewertung));
-
+        rating.addComponent(options);
+        rating.addComponent(new Label("wichtig"));
+        return rating;
     }
 
     private CustomLayout formLine(Component component) {
         CustomLayout custom = new CustomLayout("formLine");
         custom.addComponent(component, "input");
         return custom;
+    }
+
+    private Validator testValidator(final Component component) {
+        return new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                if (((String)o).trim().length() < 2) {
+                    component.addStyleName("error");
+                    throw new InvalidValueException(String.format("%s ist invalid", component.getCaption()));
+                } else {
+                    component.removeStyleName("error");
+                }
+
+            }
+        };
     }
 
 }

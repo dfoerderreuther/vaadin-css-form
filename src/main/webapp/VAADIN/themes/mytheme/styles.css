@@ -7069,3 +7069,24 @@ body .mytheme.v-app .v-app-loading {
 .mytheme .formLine .bewertung > div > div.v-label {
 	padding: 2px 5px;
 }
+
+.mytheme .formLine .v-errorindicator {
+	display: none;
+}
+
+.mytheme .formLine .v-caption-error {
+	color: red;
+}
+
+.mytheme .formLine .v-caption-error .v-captiontext {
+	background: url("/VAADIN/themes/reindeer/common/icons/error.png") 0 1px no-repeat;
+	padding-left: 12px;
+}
+
+.mytheme .formLine .v-captiontext {
+	display: inline;
+}
+
+.mytheme .formLine .v-required-field-indicator {
+	display: inline;
+}

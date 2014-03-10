@@ -51,6 +51,26 @@
             }
 
         }
+
+        .v-errorindicator {
+            display: none;
+        }
+
+        .v-caption-error {
+            color: red;
+
+            .v-captiontext {
+                background: url("/VAADIN/themes/reindeer/common/icons/error.png") 0 1px no-repeat;
+                padding-left: 12px;
+            }
+        }
+
+        .v-captiontext {
+            display: inline;
+        }
+        .v-required-field-indicator {
+            display: inline;
+        }
     }
 
 }
