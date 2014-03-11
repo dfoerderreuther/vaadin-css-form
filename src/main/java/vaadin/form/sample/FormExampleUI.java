@@ -6,6 +6,7 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.BeanValidator;
+import com.vaadin.event.FieldEvents;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
@@ -53,9 +54,11 @@ public class FormExampleUI extends UI
     }
 
     private Field<?> beanAttribute(Optional<Component> component, String name, String propertyName, Optional<Class<? extends AbstractTextField>> fieldType, String... styleNames) {
-        AbstractTextField field = (AbstractTextField) (fieldType.isPresent() ? fieldGroup.buildAndBind(name, propertyName, fieldType.get()) : fieldGroup.buildAndBind(name, propertyName));
+        final AbstractTextField field = (AbstractTextField) (fieldType.isPresent() ? fieldGroup.buildAndBind(name, propertyName, fieldType.get()) : fieldGroup.buildAndBind(name, propertyName));
         field.addValidator(new MyBeanValidator(component.isPresent() ? component.get() : field, MyBean.class, propertyName));
         field.setNullRepresentation("");
+        field.setValidationVisible(false);
+        field.addBlurListener(blurListener(field));
         for (String styleName : styleNames) {
             field.addStyleName(styleName);
         }
@@ -105,6 +108,8 @@ public class FormExampleUI extends UI
         rating.addComponent(options);
         rating.addComponent(new Label("wichtig"));
         fieldGroup.bind(options, "rating");
+        options.setValidationVisible(false);
+        options.addBlurListener(blurListener(options));
         options.addValidator(new MyBeanValidator(rating, MyBean.class, "rating"));
         return rating;
     }
@@ -113,6 +118,15 @@ public class FormExampleUI extends UI
         CustomLayout custom = new CustomLayout("formLine");
         custom.addComponent(component, "input");
         return custom;
+    }
+
+    private FieldEvents.BlurListener blurListener(final AbstractField<?> field) {
+        return new FieldEvents.BlurListener() {
+            @Override
+            public void blur(FieldEvents.BlurEvent event) {
+                field.setValidationVisible(true);
+            }
+        };
     }
 
 
