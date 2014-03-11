@@ -38,6 +38,11 @@
         .clearer {
             clear: both;
         }
+
+        .v-caption-bewertung {
+            display: block;
+            float: none;
+        }
         .bewertung {
             width: 600px;
 
@@ -48,6 +53,10 @@
 
             > div > div.v-label {
                 padding: 2px 5px;
+            }
+
+            .v-caption {
+                display: none;
             }
 
         }

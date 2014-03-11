@@ -3,7 +3,6 @@ package vaadin.form.sample;
 import com.google.common.base.Optional;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.Validator;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.BeanValidator;
@@ -43,10 +42,10 @@ public class FormExampleUI extends UI
         layout.addComponent(formLine(beanAttribute("Name", "name")));
         layout.addComponent(formLine(beanAttribute("Strasse", "street")));
         layout.addComponent(formLine(plzOrt("Postleitzahl / Ort")));
+        layout.addComponent(formLine(rating()));
         layout.addComponent(formLine(beanAttribute("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", "message")));
         layout.addComponent(formLine(beanAttribute("Land", "country")));
         layout.addComponent(formLine(beanAttribute(Optional.<Component>absent(), "Mehrzeilige Eingabe", "message2", Optional.<Class<? extends AbstractTextField>>of(TextArea.class))));
-        layout.addComponent(formLine(rating()));
     }
 
     private Field<?> beanAttribute(String name, String propertyName, String... styleNames) {
@@ -93,8 +92,9 @@ public class FormExampleUI extends UI
         return plzOrt;
     }
 
-    private HorizontalLayout rating() {
+    private Layout rating() {
         HorizontalLayout rating = new HorizontalLayout();
+        rating.setCaption("Wie wichtig finden Sie dieses Formular?");
         rating.setStyleName("bewertung");
         rating.addComponent(new Label("unwichtig"));
         OptionGroup options = new OptionGroup();
@@ -104,6 +104,8 @@ public class FormExampleUI extends UI
         }
         rating.addComponent(options);
         rating.addComponent(new Label("wichtig"));
+        fieldGroup.bind(options, "rating");
+        options.addValidator(new MyBeanValidator(rating, MyBean.class, "rating"));
         return rating;
     }
 
@@ -113,19 +115,5 @@ public class FormExampleUI extends UI
         return custom;
     }
 
-    private Validator testValidator(final Component component) {
-        return new Validator() {
-            @Override
-            public void validate(Object o) throws InvalidValueException {
-                if (((String)o).trim().length() < 2) {
-                    component.addStyleName("error");
-                    throw new InvalidValueException(String.format("%s ist invalid", component.getCaption()));
-                } else {
-                    component.removeStyleName("error");
-                }
-
-            }
-        };
-    }
 
 }

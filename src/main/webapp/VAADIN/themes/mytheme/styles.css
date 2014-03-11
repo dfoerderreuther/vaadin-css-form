@@ -7057,6 +7057,11 @@ body .mytheme.v-app .v-app-loading {
 	clear: both;
 }
 
+.mytheme .formLine .v-caption-bewertung {
+	display: block;
+	float: none;
+}
+
 .mytheme .formLine .bewertung {
 	width: 600px;
 }
@@ -7068,6 +7073,10 @@ body .mytheme.v-app .v-app-loading {
 
 .mytheme .formLine .bewertung > div > div.v-label {
 	padding: 2px 5px;
+}
+
+.mytheme .formLine .bewertung .v-caption {
+	display: none;
 }
 
 .mytheme .formLine .v-errorindicator {
