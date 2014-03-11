@@ -1,5 +1,6 @@
 package vaadin.form.sample;
 
+import com.google.common.base.Optional;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Validator;
@@ -42,20 +43,20 @@ public class FormExampleUI extends UI
         layout.addComponent(formLine(beanAttribute("Name", "name")));
         layout.addComponent(formLine(beanAttribute("Strasse", "street")));
         layout.addComponent(formLine(plzOrt("Postleitzahl / Ort")));
-        layout.addComponent(formLine(textField("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", true)));
+        layout.addComponent(formLine(beanAttribute("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", "message")));
         layout.addComponent(formLine(beanAttribute("Land", "country")));
-        layout.addComponent(formLine(textArea("Mehrzeilige Eingabe", true)));
-        layout.addComponent(formLine(beanAttribute("Mitteilung", "message")));
+        layout.addComponent(formLine(beanAttribute(Optional.<Component>absent(), "Mehrzeilige Eingabe", "message2", Optional.<Class<? extends AbstractTextField>>of(TextArea.class))));
         layout.addComponent(formLine(rating()));
     }
 
     private Field<?> beanAttribute(String name, String propertyName, String... styleNames) {
-        return beanAttribute(null, name, propertyName, styleNames);
+        return beanAttribute(Optional.<Component>absent(), name, propertyName, Optional.<Class<? extends AbstractTextField>>absent(), styleNames);
     }
 
-    private Field<?> beanAttribute(Component component, String name, String propertyName, String... styleNames) {
-        Field<?> field = fieldGroup.buildAndBind(name, propertyName);
-        field.addValidator(new MyBeanValidator(component != null ? component : field, MyBean.class, propertyName));
+    private Field<?> beanAttribute(Optional<Component> component, String name, String propertyName, Optional<Class<? extends AbstractTextField>> fieldType, String... styleNames) {
+        AbstractTextField field = (AbstractTextField) (fieldType.isPresent() ? fieldGroup.buildAndBind(name, propertyName, fieldType.get()) : fieldGroup.buildAndBind(name, propertyName));
+        field.addValidator(new MyBeanValidator(component.isPresent() ? component.get() : field, MyBean.class, propertyName));
+        field.setNullRepresentation("");
         for (String styleName : styleNames) {
             field.addStyleName(styleName);
         }
@@ -85,38 +86,11 @@ public class FormExampleUI extends UI
     private HorizontalLayout plzOrt(String name) {
         HorizontalLayout plzOrt = new HorizontalLayout();
         plzOrt.setCaption(name);
-        Field<?> plz = beanAttribute(plzOrt, "", "zip", "plz");
+        Field<?> plz = beanAttribute(Optional.<Component>of(plzOrt), "", "zip", Optional.<Class<? extends AbstractTextField>>absent(), "plz");
         plzOrt.addComponent(plz);
-        TextField ort = textField("Ort", false, "ort");
-        ort.setRequired(true);
-        ort.setImmediate(true);
-        ort.addValidator(testValidator(plzOrt));
+        Field<?> ort = beanAttribute("Ort", "city", "ort");
         plzOrt.addComponent(ort);
         return plzOrt;
-    }
-
-    private TextField textField(String name, boolean required, String... styleNames) {
-        TextField textField = name != null ? new TextField(name) : new TextField();
-        extendAbstractTextField(textField, name, required, styleNames);
-        return textField;
-    }
-
-    private TextArea textArea(String name, boolean required, String... styleNames) {
-        TextArea textField = name != null ? new TextArea(name) : new TextArea();
-        extendAbstractTextField(textField, name, required, styleNames);
-        return textField;
-    }
-
-    private void extendAbstractTextField(final AbstractTextField textField, final String name, boolean required, String... styleNames) {
-        if (required) {
-            textField.setRequired(true);
-            textField.setImmediate(true);
-            textField.addValidator(testValidator(textField));
-            textField.setValidationVisible(true);
-        }
-        for (String styleName : styleNames) {
-            textField.addStyleName(styleName);
-        }
     }
 
     private HorizontalLayout rating() {

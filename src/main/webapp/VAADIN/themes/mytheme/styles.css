@@ -7074,7 +7074,7 @@ body .mytheme.v-app .v-app-loading {
 	display: none;
 }
 
-.mytheme .formLine .v-textfield-error {
+.mytheme .formLine .v-textfield-error, .mytheme .formLine .v-textarea-error {
 	border-color: red;
 }
 
