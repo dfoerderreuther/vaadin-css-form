@@ -18,7 +18,6 @@ import javax.servlet.annotation.WebServlet;
 public class FormExampleUI extends UI
 {
 
-
     private FieldGroup fieldGroup;
 
     @WebServlet(value = "/*", asyncSupported = true)
@@ -47,6 +46,20 @@ public class FormExampleUI extends UI
         layout.addComponent(formLine(beanAttribute("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", "message")));
         layout.addComponent(formLine(beanAttribute("Land", "country")));
         layout.addComponent(formLine(beanAttribute(Optional.<Component>absent(), "Mehrzeilige Eingabe", "message2", Optional.<Class<? extends AbstractTextField>>of(TextArea.class))));
+
+        Button submit = new Button("send");
+        layout.addComponent(formLine(submit));
+        submit.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                for (Field<?> field : fieldGroup.getFields()) {
+                    if (field instanceof AbstractField) {
+                        ((AbstractField) field).setValidationVisible(true);
+                    }
+                }
+
+            }
+        });
     }
 
     private Field<?> beanAttribute(String name, String propertyName, String... styleNames) {
