@@ -3,6 +3,9 @@ package vaadin.form.sample;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Validator;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
@@ -13,6 +16,9 @@ import javax.servlet.annotation.WebServlet;
 @SuppressWarnings("serial")
 public class FormExampleUI extends UI
 {
+
+
+    private FieldGroup fieldGroup;
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = FormExampleUI.class, widgetset = "vaadin.form.sample.AppWidgetSet")
@@ -26,27 +32,60 @@ public class FormExampleUI extends UI
         layout.setMargin(true);
         setContent(layout);
 
+        BeanItem<MyBean> beanItem = new BeanItem<MyBean>(new MyBean());
+        fieldGroup = new FieldGroup(beanItem);
+
         addCustomLayout(layout);
     }
 
     private void addCustomLayout(Layout layout) {
-        layout.addComponent(formLine(textField("Name", true)));
-        layout.addComponent(formLine(textField("Strasse", true)));
+        layout.addComponent(formLine(beanAttribute("Name", "name")));
+        layout.addComponent(formLine(beanAttribute("Strasse", "street")));
         layout.addComponent(formLine(plzOrt("Postleitzahl / Ort")));
         layout.addComponent(formLine(textField("Textfield mit langem Label. So lang, dass es sogar umbricht. Und das sogar gleich zwei mal.", true)));
-        layout.addComponent(formLine(textField("Land", true)));
+        layout.addComponent(formLine(beanAttribute("Land", "country")));
         layout.addComponent(formLine(textArea("Mehrzeilige Eingabe", true)));
-        layout.addComponent(formLine(textField("Kurz", true)));
+        layout.addComponent(formLine(beanAttribute("Mitteilung", "message")));
         layout.addComponent(formLine(rating()));
+    }
+
+    private Field<?> beanAttribute(String name, String propertyName, String... styleNames) {
+        return beanAttribute(null, name, propertyName, styleNames);
+    }
+
+    private Field<?> beanAttribute(Component component, String name, String propertyName, String... styleNames) {
+        Field<?> field = fieldGroup.buildAndBind(name, propertyName);
+        field.addValidator(new MyBeanValidator(component != null ? component : field, MyBean.class, propertyName));
+        for (String styleName : styleNames) {
+            field.addStyleName(styleName);
+        }
+        return field;
+    }
+
+    public static class MyBeanValidator extends BeanValidator {
+        public Component component;
+
+        public MyBeanValidator(Component component, Class<?> beanClass, String propertyName) {
+            super(beanClass, propertyName);
+            this.component = component;
+        }
+
+        @Override
+        public void validate(Object value) throws InvalidValueException {
+            try {
+                super.validate(value);
+            } catch (InvalidValueException e) {
+                component.addStyleName("error");
+                throw e;
+            }
+            component.removeStyleName("error");
+        }
     }
 
     private HorizontalLayout plzOrt(String name) {
         HorizontalLayout plzOrt = new HorizontalLayout();
         plzOrt.setCaption(name);
-        TextField plz = textField("PLZ", false, "plz");
-        plz.setRequired(true);
-        plz.setImmediate(true);
-        plz.addValidator(testValidator(plzOrt));
+        Field<?> plz = beanAttribute(plzOrt, "", "zip", "plz");
         plzOrt.addComponent(plz);
         TextField ort = textField("Ort", false, "ort");
         ort.setRequired(true);
@@ -68,11 +107,12 @@ public class FormExampleUI extends UI
         return textField;
     }
 
-    private void extendAbstractTextField(AbstractTextField textField, String name, boolean required, String... styleNames) {
+    private void extendAbstractTextField(final AbstractTextField textField, final String name, boolean required, String... styleNames) {
         if (required) {
             textField.setRequired(true);
             textField.setImmediate(true);
             textField.addValidator(testValidator(textField));
+            textField.setValidationVisible(true);
         }
         for (String styleName : styleNames) {
             textField.addStyleName(styleName);
